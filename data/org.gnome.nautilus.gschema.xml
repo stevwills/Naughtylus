@@ -188,6 +188,51 @@
       <summary>How to display file timestamps in the views</summary>
       <description>If set to 'simple', Files will show Today and Yesterday with time, otherwise the exact date without time. If set to 'detailed', it will always show the exact date and time.</description>
     </key>
+
+     <!-- This is where i added my new code -->
+    <key name="show-home-shortcut" type="b">
+       <default>true</default>
+      <summary>Whether to show the Home folder in the sidebar</summary>
+    </key>
+
+    <key name="show-recent-shortcut" type="b">
+       <default>true</default>
+      <summary>Whether to show the recent folder in the sidebar</summary>
+    </key>
+
+        <key name="show-starred-shortcut" type="b">
+       <default>true</default>
+      <summary>Whether to show the starred folder in the sidebar.. psst... who uses the starred feature?</summary>
+    </key>
+
+    <key name="show-documents-shortcut" type="b">
+       <default>true</default>
+      <summary>Whether to show the Documents folder in the sidebar</summary>
+    </key>
+
+        <key name="show-pictures-shortcut" type="b">
+       <default>true</default>
+      <summary>Whether to show the Pictures folder in the sidebar</summary>
+    </key>
+
+    <key name="show-videos-shortcut" type="b">
+       <default>true</default>
+      <summary>Whether to show the Videos folder in the sidebar</summary>
+    </key>
+
+        <key name="show-music-shortcut" type="b">
+       <default>true</default>
+      <summary>Whether to show the Music folder in the sidebar</summary>
+    </key>
+
+        <key name="show-downloads-shortcut" type="b">
+       <default>true</default>
+      <summary>Whether to show the Downloads folder in the sidebar</summary>
+    </key>
+
+
+    <!-- This is where my new code  Ends-->
+
   </schema>
 
   <schema path="/org/gnome/nautilus/compression/" id="org.gnome.nautilus.compression" gettext-domain="nautilus">
@@ -255,5 +300,6 @@
       <summary>Initial size of the file chooser window</summary>
       <description>A tuple containing the initial width and height of the file chooser window.</description>
     </key>
+
   </schema>
 </schemalist>

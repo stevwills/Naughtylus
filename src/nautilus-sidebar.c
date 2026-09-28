@@ -691,6 +691,9 @@ update_places (NautilusSidebar *sidebar)
     /* add built-in places */
 
     /* home folder */
+ /* Added an if function to disable home if some people want to do this.. */
+if (g_settings_get_boolean (nautilus_preferences, "show-home-shortcut"))
+    {
     home_uri = get_home_directory_uri ();
     start_icon = g_themed_icon_new_with_default_fallbacks (ICON_NAME_HOME);
     add_place (sidebar, NAUTILUS_SIDEBAR_ROW_BUILT_IN,
@@ -700,18 +703,27 @@ update_places (NautilusSidebar *sidebar)
                _("Open Personal Folder"));
     g_object_unref (start_icon);
     g_free (home_uri);
+    }
+    /* Added an if for the Bool to disable the static  */
 
+if (g_settings_get_boolean (nautilus_preferences, "show-recent-shortcut"))
+    {
     if (should_show_recent (sidebar))
     {
-        start_icon = g_themed_icon_new_with_default_fallbacks ("document-open-recent-symbolic");
-        add_place (sidebar, NAUTILUS_SIDEBAR_ROW_BUILT_IN,
-                   NAUTILUS_SIDEBAR_SECTION_DEFAULT_LOCATIONS,
-                   _("Recent"), start_icon, NULL, SCHEME_RECENT ":///",
-                   NULL, NULL, NULL, NULL, 0,
-                   _("Recent Files"));
-        g_object_unref (start_icon);
+            start_icon = g_themed_icon_new_with_default_fallbacks ("document-open-recent-symbolic");
+            add_place (sidebar, NAUTILUS_SIDEBAR_ROW_BUILT_IN,
+                       NAUTILUS_SIDEBAR_SECTION_DEFAULT_LOCATIONS,
+                       _("Recent"), start_icon, NULL, SCHEME_RECENT ":///",
+                       NULL, NULL, NULL, NULL, 0,
+                       _("Recent Files"));
+            g_object_unref (start_icon);
+        }
+
     }
 
+    /*added an if for the starred menu as well, this checks for the bool before adding it to the menu */
+if (g_settings_get_boolean (nautilus_preferences, "show-starred-shortcut"))
+    {
     start_icon = g_themed_icon_new_with_default_fallbacks ("starred-symbolic");
     add_place (sidebar, NAUTILUS_SIDEBAR_ROW_BUILT_IN,
                NAUTILUS_SIDEBAR_SECTION_DEFAULT_LOCATIONS,
@@ -719,6 +731,90 @@ update_places (NautilusSidebar *sidebar)
                NULL, NULL, NULL, NULL, 0,
                _("Starred Files"));
     g_object_unref (start_icon);
+    }
+/* this is where the new code needs to be added to add my useful additions to Gnautiluseful.. */
+    /* Documents */
+   if (g_settings_get_boolean (nautilus_preferences, "show-documents-shortcut"))
+    {
+       char *docs_uri = g_filename_to_uri (g_get_user_special_dir (G_USER_DIRECTORY_DOCUMENTS), NULL, NULL);
+       if (docs_uri)
+       {
+           start_icon = g_themed_icon_new_with_default_fallbacks ("folder-documents-symbolic");
+           add_place (sidebar, NAUTILUS_SIDEBAR_ROW_BUILT_IN,
+                      NAUTILUS_SIDEBAR_SECTION_DEFAULT_LOCATIONS,
+                      _("Documents"), start_icon, NULL, docs_uri,
+                      NULL, NULL, NULL, NULL, 0,
+                      _("Open Documents Folder"));
+           g_object_unref (start_icon);
+           g_free (docs_uri);
+       }
+    }
+/* Pictures / Photos */
+   if (g_settings_get_boolean (nautilus_preferences, "show-pictures-shortcut"))
+    {
+         char *pics_uri = g_filename_to_uri (g_get_user_special_dir (G_USER_DIRECTORY_PICTURES), NULL, NULL);
+        if (pics_uri)
+        {
+            start_icon = g_themed_icon_new_with_default_fallbacks ("folder-pictures-symbolic");
+            add_place (sidebar, NAUTILUS_SIDEBAR_ROW_BUILT_IN,
+                       NAUTILUS_SIDEBAR_SECTION_DEFAULT_LOCATIONS,
+                       _("Pictures"), start_icon, NULL, pics_uri,
+                       NULL, NULL, NULL, NULL, 0,
+                       _("Open Pictures Folder"));
+            g_object_unref (start_icon);
+            g_free (pics_uri);
+        }
+    }
+/* Videos */
+    if (g_settings_get_boolean (nautilus_preferences, "show-videos-shortcut"))
+    {
+        char *videos_uri = g_filename_to_uri (g_get_user_special_dir (G_USER_DIRECTORY_VIDEOS), NULL, NULL);
+            if (videos_uri)
+            {
+                start_icon = g_themed_icon_new_with_default_fallbacks ("folder-videos-symbolic");
+                add_place (sidebar, NAUTILUS_SIDEBAR_ROW_BUILT_IN,
+                   NAUTILUS_SIDEBAR_SECTION_DEFAULT_LOCATIONS,
+                   _("Videos"), start_icon, NULL, videos_uri,
+                   NULL, NULL, NULL, NULL, 0,
+                   _("Open Videos Folder"));
+            g_object_unref (start_icon);
+            g_free (videos_uri);
+        }
+    }
+/* Music */
+    if (g_settings_get_boolean (nautilus_preferences, "show-music-shortcut"))
+    {
+        char *music_uri = g_filename_to_uri (g_get_user_special_dir (G_USER_DIRECTORY_MUSIC), NULL, NULL);
+        if (music_uri)
+        {
+            start_icon = g_themed_icon_new_with_default_fallbacks ("folder-music-symbolic");
+            add_place (sidebar, NAUTILUS_SIDEBAR_ROW_BUILT_IN,
+                       NAUTILUS_SIDEBAR_SECTION_DEFAULT_LOCATIONS,
+                       _("Music"), start_icon, NULL, music_uri,
+                       NULL, NULL, NULL, NULL, 0,
+                       _("Open Music Folder"));
+            g_object_unref (start_icon);
+            g_free (music_uri);
+        }
+    }
+    /* Downloads */
+    if (g_settings_get_boolean (nautilus_preferences, "show-downloads-shortcut"))
+    {
+        char *downloads_uri = g_filename_to_uri (g_get_user_special_dir (G_USER_DIRECTORY_DOWNLOAD), NULL, NULL);
+        if (downloads_uri)
+        {
+            start_icon = g_themed_icon_new_with_default_fallbacks ("folder-download-symbolic");
+            add_place (sidebar, NAUTILUS_SIDEBAR_ROW_BUILT_IN,
+                       NAUTILUS_SIDEBAR_SECTION_DEFAULT_LOCATIONS,
+                       _("Downloads"), start_icon, NULL, downloads_uri,
+                       NULL, NULL, NULL, NULL, 0,
+                       _("Open Downloads Folder"));
+            g_object_unref (start_icon);
+            g_free (downloads_uri);
+        }
+    }
+/*this is where the modifications stop. */
+
 
     /* desktop */
     if (sidebar->show_desktop)
@@ -3564,6 +3660,23 @@ update_location (NautilusSidebar *self)
     nautilus_sidebar_set_location (self, location);
 }
 
+/*beginning of another mod to make the toggle in preferences update the static bar */
+    static void
+preferences_changed_callback (GSettings *settings,
+                              char      *key,
+                              gpointer   user_data)
+{
+    NautilusSidebar *sidebar = NAUTILUS_PLACES_SIDEBAR (user_data);
+
+    if (g_str_has_suffix (key, "-shortcut"))
+    {
+        update_places (sidebar);
+    }
+}
+
+
+
+/*end of my dirty hack */
 static void
 nautilus_sidebar_init (NautilusSidebar *sidebar)
 {
@@ -3674,6 +3787,16 @@ nautilus_sidebar_init (NautilusSidebar *sidebar)
 #endif
 
     sidebar->show_trash = TRUE;
+
+    /* new mod to add update the list sidebar when bools are toggle in preferences */
+    g_signal_connect (nautilus_preferences,
+                      "changed",
+                      G_CALLBACK (preferences_changed_callback),
+                      sidebar);
+
+
+
+    /*End of the mod  */
 
     /* populate the sidebar */
     update_places (sidebar);

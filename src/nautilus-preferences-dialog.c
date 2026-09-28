@@ -41,6 +41,20 @@
 #define NAUTILUS_PREFERENCES_DIALOG_COUNT_ROW                       \
         "count_row"
 
+/* here i will define my modified stuff  */
+#define NAUTILUS_PREFERENCES_DIALOG_SHOW_HOME_WIDGET    "show_home_row"
+#define NAUTILUS_PREFERENCES_DIALOG_SHOW_RECENT_WIDGET    "show_recent_row"
+#define NAUTILUS_PREFERENCES_DIALOG_SHOW_STARRED_WIDGET    "show_starred_row"
+#define NAUTILUS_PREFERENCES_DIALOG_SHOW_DOCUMENTS_WIDGET "show_documents_row"
+#define NAUTILUS_PREFERENCES_DIALOG_SHOW_PICTURES_WIDGET   "show_pictures_row"
+#define NAUTILUS_PREFERENCES_DIALOG_SHOW_VIDEOS_WIDGET     "show_videos_row"
+#define NAUTILUS_PREFERENCES_DIALOG_SHOW_MUSIC_WIDGET      "show_music_row"
+#define NAUTILUS_PREFERENCES_DIALOG_SHOW_DOWNLOADS_WIDGET  "show_downloads_row"
+
+
+
+/* end of my modified stuff  */
+
 static const char * const speed_tradeoff_values[] =
 {
     "local-only", "always", "never",
@@ -199,6 +213,38 @@ nautilus_preferences_dialog_setup (GtkBuilder *builder)
                             NAUTILUS_PREFERENCES_DIALOG_COUNT_ROW,
                             NAUTILUS_PREFERENCES_SHOW_DIRECTORY_ITEM_COUNTS,
                             (const char **) speed_tradeoff_values);
+    /* I added my builds here */
+
+    bind_builder_bool (builder, nautilus_preferences,
+                       NAUTILUS_PREFERENCES_DIALOG_SHOW_HOME_WIDGET,
+                       "show-home-shortcut");
+
+    bind_builder_bool (builder, nautilus_preferences,
+                       NAUTILUS_PREFERENCES_DIALOG_SHOW_RECENT_WIDGET,
+                       "show-recent-shortcut");
+    bind_builder_bool (builder, nautilus_preferences,
+                       NAUTILUS_PREFERENCES_DIALOG_SHOW_STARRED_WIDGET,
+                       "show-starred-shortcut");
+    bind_builder_bool (builder, nautilus_preferences,
+                       NAUTILUS_PREFERENCES_DIALOG_SHOW_DOCUMENTS_WIDGET,
+                       "show-documents-shortcut");
+    bind_builder_bool (builder, nautilus_preferences,
+                       NAUTILUS_PREFERENCES_DIALOG_SHOW_PICTURES_WIDGET,
+                       "show-pictures-shortcut");
+    bind_builder_bool (builder, nautilus_preferences,
+                       NAUTILUS_PREFERENCES_DIALOG_SHOW_VIDEOS_WIDGET,
+                       "show-videos-shortcut");
+    bind_builder_bool (builder, nautilus_preferences,
+                       NAUTILUS_PREFERENCES_DIALOG_SHOW_MUSIC_WIDGET,
+                       "show-music-shortcut");
+    bind_builder_bool (builder, nautilus_preferences,
+                       NAUTILUS_PREFERENCES_DIALOG_SHOW_DOWNLOADS_WIDGET,
+                       "show-downloads-shortcut");
+
+
+
+    /* end of my mods */
+
 }
 
 void

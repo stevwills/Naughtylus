@@ -113,5 +113,46 @@ Adw.PreferencesDialog preferences_dialog {
         activatable-widget: date_format_detailed_button;
       }
     }
+
+    /*this is where i will add my preferences */
+Adw.PreferencesGroup {
+    title: _("Sidebar Shortcuts");
+    description: _("Choose which default locations and folders appear in the sidebar.");
+
+    Adw.SwitchRow show_home_row {
+      title: _("Home");
+    }
+
+
+    Adw.SwitchRow show_recent_row {
+      title: _("Recent");
+    }
+
+    Adw.SwitchRow show_starred_row {
+      title: _("Starred");
+    }
+
+    Adw.SwitchRow show_documents_row {
+      title: _("Documents");
+    }
+
+    Adw.SwitchRow show_pictures_row {
+      title: _("Pictures");
+    }
+
+    Adw.SwitchRow show_videos_row {
+      title: _("Videos");
+    }
+
+    Adw.SwitchRow show_music_row {
+      title: _("Music");
+    }
+
+    Adw.SwitchRow show_downloads_row {
+      title: _("Downloads");
+    }
+  }
+
+/* this is the end of my modifications*/
   }
 }

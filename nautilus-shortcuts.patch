@@ -1,0 +1,359 @@
+diff --git a/data/org.gnome.nautilus.gschema.xml b/data/org.gnome.nautilus.gschema.xml
+index 3c14aa4d5..3746d710c 100644
+--- a/data/org.gnome.nautilus.gschema.xml
++++ b/data/org.gnome.nautilus.gschema.xml
+@@ -188,6 +188,51 @@
+       <summary>How to display file timestamps in the views</summary>
+       <description>If set to 'simple', Files will show Today and Yesterday with time, otherwise the exact date without time. If set to 'detailed', it will always show the exact date and time.</description>
+     </key>
++
++     <!-- This is where i added my new code -->
++    <key name="show-home-shortcut" type="b">
++       <default>true</default>
++      <summary>Whether to show the Home folder in the sidebar</summary>
++    </key>
++
++    <key name="show-recent-shortcut" type="b">
++       <default>true</default>
++      <summary>Whether to show the recent folder in the sidebar</summary>
++    </key>
++
++        <key name="show-starred-shortcut" type="b">
++       <default>true</default>
++      <summary>Whether to show the starred folder in the sidebar.. psst... who uses the starred feature?</summary>
++    </key>
++
++    <key name="show-documents-shortcut" type="b">
++       <default>true</default>
++      <summary>Whether to show the Documents folder in the sidebar</summary>
++    </key>
++
++        <key name="show-pictures-shortcut" type="b">
++       <default>true</default>
++      <summary>Whether to show the Pictures folder in the sidebar</summary>
++    </key>
++
++    <key name="show-videos-shortcut" type="b">
++       <default>true</default>
++      <summary>Whether to show the Videos folder in the sidebar</summary>
++    </key>
++
++        <key name="show-music-shortcut" type="b">
++       <default>true</default>
++      <summary>Whether to show the Music folder in the sidebar</summary>
++    </key>
++
++        <key name="show-downloads-shortcut" type="b">
++       <default>true</default>
++      <summary>Whether to show the Downloads folder in the sidebar</summary>
++    </key>
++
++
++    <!-- This is where my new code  Ends-->
++
+   </schema>
+ 
+   <schema path="/org/gnome/nautilus/compression/" id="org.gnome.nautilus.compression" gettext-domain="nautilus">
+@@ -255,5 +300,6 @@
+       <summary>Initial size of the file chooser window</summary>
+       <description>A tuple containing the initial width and height of the file chooser window.</description>
+     </key>
++
+   </schema>
+ </schemalist>
+diff --git a/src/nautilus-preferences-dialog.c b/src/nautilus-preferences-dialog.c
+index f889decb3..9e7ae28b5 100644
+--- a/src/nautilus-preferences-dialog.c
++++ b/src/nautilus-preferences-dialog.c
+@@ -41,6 +41,20 @@
+ #define NAUTILUS_PREFERENCES_DIALOG_COUNT_ROW                       \
+         "count_row"
+ 
++/* here i will define my modified stuff  */
++#define NAUTILUS_PREFERENCES_DIALOG_SHOW_HOME_WIDGET    "show_home_row"
++#define NAUTILUS_PREFERENCES_DIALOG_SHOW_RECENT_WIDGET    "show_recent_row"
++#define NAUTILUS_PREFERENCES_DIALOG_SHOW_STARRED_WIDGET    "show_starred_row"
++#define NAUTILUS_PREFERENCES_DIALOG_SHOW_DOCUMENTS_WIDGET "show_documents_row"
++#define NAUTILUS_PREFERENCES_DIALOG_SHOW_PICTURES_WIDGET   "show_pictures_row"
++#define NAUTILUS_PREFERENCES_DIALOG_SHOW_VIDEOS_WIDGET     "show_videos_row"
++#define NAUTILUS_PREFERENCES_DIALOG_SHOW_MUSIC_WIDGET      "show_music_row"
++#define NAUTILUS_PREFERENCES_DIALOG_SHOW_DOWNLOADS_WIDGET  "show_downloads_row"
++
++
++
++/* end of my modified stuff  */
++
+ static const char * const speed_tradeoff_values[] =
+ {
+     "local-only", "always", "never",
+@@ -199,6 +213,38 @@ nautilus_preferences_dialog_setup (GtkBuilder *builder)
+                             NAUTILUS_PREFERENCES_DIALOG_COUNT_ROW,
+                             NAUTILUS_PREFERENCES_SHOW_DIRECTORY_ITEM_COUNTS,
+                             (const char **) speed_tradeoff_values);
++    /* I added my builds here */
++
++    bind_builder_bool (builder, nautilus_preferences,
++                       NAUTILUS_PREFERENCES_DIALOG_SHOW_HOME_WIDGET,
++                       "show-home-shortcut");
++
++    bind_builder_bool (builder, nautilus_preferences,
++                       NAUTILUS_PREFERENCES_DIALOG_SHOW_RECENT_WIDGET,
++                       "show-recent-shortcut");
++    bind_builder_bool (builder, nautilus_preferences,
++                       NAUTILUS_PREFERENCES_DIALOG_SHOW_STARRED_WIDGET,
++                       "show-starred-shortcut");
++    bind_builder_bool (builder, nautilus_preferences,
++                       NAUTILUS_PREFERENCES_DIALOG_SHOW_DOCUMENTS_WIDGET,
++                       "show-documents-shortcut");
++    bind_builder_bool (builder, nautilus_preferences,
++                       NAUTILUS_PREFERENCES_DIALOG_SHOW_PICTURES_WIDGET,
++                       "show-pictures-shortcut");
++    bind_builder_bool (builder, nautilus_preferences,
++                       NAUTILUS_PREFERENCES_DIALOG_SHOW_VIDEOS_WIDGET,
++                       "show-videos-shortcut");
++    bind_builder_bool (builder, nautilus_preferences,
++                       NAUTILUS_PREFERENCES_DIALOG_SHOW_MUSIC_WIDGET,
++                       "show-music-shortcut");
++    bind_builder_bool (builder, nautilus_preferences,
++                       NAUTILUS_PREFERENCES_DIALOG_SHOW_DOWNLOADS_WIDGET,
++                       "show-downloads-shortcut");
++
++
++
++    /* end of my mods */
++
+ }
+ 
+ void
+diff --git a/src/nautilus-sidebar.c b/src/nautilus-sidebar.c
+index ccc56ecc1..7e7734a7f 100644
+--- a/src/nautilus-sidebar.c
++++ b/src/nautilus-sidebar.c
+@@ -691,6 +691,9 @@ update_places (NautilusSidebar *sidebar)
+     /* add built-in places */
+ 
+     /* home folder */
++ /* Added an if function to disable home if some people want to do this.. */
++if (g_settings_get_boolean (nautilus_preferences, "show-home-shortcut"))
++    {
+     home_uri = get_home_directory_uri ();
+     start_icon = g_themed_icon_new_with_default_fallbacks (ICON_NAME_HOME);
+     add_place (sidebar, NAUTILUS_SIDEBAR_ROW_BUILT_IN,
+@@ -700,18 +703,27 @@ update_places (NautilusSidebar *sidebar)
+                _("Open Personal Folder"));
+     g_object_unref (start_icon);
+     g_free (home_uri);
++    }
++    /* Added an if for the Bool to disable the static  */
+ 
++if (g_settings_get_boolean (nautilus_preferences, "show-recent-shortcut"))
++    {
+     if (should_show_recent (sidebar))
+     {
+-        start_icon = g_themed_icon_new_with_default_fallbacks ("document-open-recent-symbolic");
+-        add_place (sidebar, NAUTILUS_SIDEBAR_ROW_BUILT_IN,
+-                   NAUTILUS_SIDEBAR_SECTION_DEFAULT_LOCATIONS,
+-                   _("Recent"), start_icon, NULL, SCHEME_RECENT ":///",
+-                   NULL, NULL, NULL, NULL, 0,
+-                   _("Recent Files"));
+-        g_object_unref (start_icon);
++            start_icon = g_themed_icon_new_with_default_fallbacks ("document-open-recent-symbolic");
++            add_place (sidebar, NAUTILUS_SIDEBAR_ROW_BUILT_IN,
++                       NAUTILUS_SIDEBAR_SECTION_DEFAULT_LOCATIONS,
++                       _("Recent"), start_icon, NULL, SCHEME_RECENT ":///",
++                       NULL, NULL, NULL, NULL, 0,
++                       _("Recent Files"));
++            g_object_unref (start_icon);
++        }
++
+     }
+ 
++    /*added an if for the starred menu as well, this checks for the bool before adding it to the menu */
++if (g_settings_get_boolean (nautilus_preferences, "show-starred-shortcut"))
++    {
+     start_icon = g_themed_icon_new_with_default_fallbacks ("starred-symbolic");
+     add_place (sidebar, NAUTILUS_SIDEBAR_ROW_BUILT_IN,
+                NAUTILUS_SIDEBAR_SECTION_DEFAULT_LOCATIONS,
+@@ -719,6 +731,90 @@ update_places (NautilusSidebar *sidebar)
+                NULL, NULL, NULL, NULL, 0,
+                _("Starred Files"));
+     g_object_unref (start_icon);
++    }
++/* this is where the new code needs to be added to add my useful additions to Gnautiluseful.. */
++    /* Documents */
++   if (g_settings_get_boolean (nautilus_preferences, "show-documents-shortcut"))
++    {
++       char *docs_uri = g_filename_to_uri (g_get_user_special_dir (G_USER_DIRECTORY_DOCUMENTS), NULL, NULL);
++       if (docs_uri)
++       {
++           start_icon = g_themed_icon_new_with_default_fallbacks ("folder-documents-symbolic");
++           add_place (sidebar, NAUTILUS_SIDEBAR_ROW_BUILT_IN,
++                      NAUTILUS_SIDEBAR_SECTION_DEFAULT_LOCATIONS,
++                      _("Documents"), start_icon, NULL, docs_uri,
++                      NULL, NULL, NULL, NULL, 0,
++                      _("Open Documents Folder"));
++           g_object_unref (start_icon);
++           g_free (docs_uri);
++       }
++    }
++/* Pictures / Photos */
++   if (g_settings_get_boolean (nautilus_preferences, "show-pictures-shortcut"))
++    {
++         char *pics_uri = g_filename_to_uri (g_get_user_special_dir (G_USER_DIRECTORY_PICTURES), NULL, NULL);
++        if (pics_uri)
++        {
++            start_icon = g_themed_icon_new_with_default_fallbacks ("folder-pictures-symbolic");
++            add_place (sidebar, NAUTILUS_SIDEBAR_ROW_BUILT_IN,
++                       NAUTILUS_SIDEBAR_SECTION_DEFAULT_LOCATIONS,
++                       _("Pictures"), start_icon, NULL, pics_uri,
++                       NULL, NULL, NULL, NULL, 0,
++                       _("Open Pictures Folder"));
++            g_object_unref (start_icon);
++            g_free (pics_uri);
++        }
++    }
++/* Videos */
++    if (g_settings_get_boolean (nautilus_preferences, "show-videos-shortcut"))
++    {
++        char *videos_uri = g_filename_to_uri (g_get_user_special_dir (G_USER_DIRECTORY_VIDEOS), NULL, NULL);
++            if (videos_uri)
++            {
++                start_icon = g_themed_icon_new_with_default_fallbacks ("folder-videos-symbolic");
++                add_place (sidebar, NAUTILUS_SIDEBAR_ROW_BUILT_IN,
++                   NAUTILUS_SIDEBAR_SECTION_DEFAULT_LOCATIONS,
++                   _("Videos"), start_icon, NULL, videos_uri,
++                   NULL, NULL, NULL, NULL, 0,
++                   _("Open Videos Folder"));
++            g_object_unref (start_icon);
++            g_free (videos_uri);
++        }
++    }
++/* Music */
++    if (g_settings_get_boolean (nautilus_preferences, "show-music-shortcut"))
++    {
++        char *music_uri = g_filename_to_uri (g_get_user_special_dir (G_USER_DIRECTORY_MUSIC), NULL, NULL);
++        if (music_uri)
++        {
++            start_icon = g_themed_icon_new_with_default_fallbacks ("folder-music-symbolic");
++            add_place (sidebar, NAUTILUS_SIDEBAR_ROW_BUILT_IN,
++                       NAUTILUS_SIDEBAR_SECTION_DEFAULT_LOCATIONS,
++                       _("Music"), start_icon, NULL, music_uri,
++                       NULL, NULL, NULL, NULL, 0,
++                       _("Open Music Folder"));
++            g_object_unref (start_icon);
++            g_free (music_uri);
++        }
++    }
++    /* Downloads */
++    if (g_settings_get_boolean (nautilus_preferences, "show-downloads-shortcut"))
++    {
++        char *downloads_uri = g_filename_to_uri (g_get_user_special_dir (G_USER_DIRECTORY_DOWNLOAD), NULL, NULL);
++        if (downloads_uri)
++        {
++            start_icon = g_themed_icon_new_with_default_fallbacks ("folder-download-symbolic");
++            add_place (sidebar, NAUTILUS_SIDEBAR_ROW_BUILT_IN,
++                       NAUTILUS_SIDEBAR_SECTION_DEFAULT_LOCATIONS,
++                       _("Downloads"), start_icon, NULL, downloads_uri,
++                       NULL, NULL, NULL, NULL, 0,
++                       _("Open Downloads Folder"));
++            g_object_unref (start_icon);
++            g_free (downloads_uri);
++        }
++    }
++/*this is where the modifications stop. */
++
+ 
+     /* desktop */
+     if (sidebar->show_desktop)
+@@ -3564,6 +3660,23 @@ update_location (NautilusSidebar *self)
+     nautilus_sidebar_set_location (self, location);
+ }
+ 
++/*beginning of another mod to make the toggle in preferences update the static bar */
++    static void
++preferences_changed_callback (GSettings *settings,
++                              char      *key,
++                              gpointer   user_data)
++{
++    NautilusSidebar *sidebar = NAUTILUS_PLACES_SIDEBAR (user_data);
++
++    if (g_str_has_suffix (key, "-shortcut"))
++    {
++        update_places (sidebar);
++    }
++}
++
++
++
++/*end of my dirty hack */
+ static void
+ nautilus_sidebar_init (NautilusSidebar *sidebar)
+ {
+@@ -3675,6 +3788,16 @@ nautilus_sidebar_init (NautilusSidebar *sidebar)
+ 
+     sidebar->show_trash = TRUE;
+ 
++    /* new mod to add update the list sidebar when bools are toggle in preferences */
++    g_signal_connect (nautilus_preferences,
++                      "changed",
++                      G_CALLBACK (preferences_changed_callback),
++                      sidebar);
++
++
++
++    /*End of the mod  */
++
+     /* populate the sidebar */
+     update_places (sidebar);
+ 
+diff --git a/src/resources/ui/nautilus-preferences-dialog.blp b/src/resources/ui/nautilus-preferences-dialog.blp
+index fa03d206a..661b90927 100644
+--- a/src/resources/ui/nautilus-preferences-dialog.blp
++++ b/src/resources/ui/nautilus-preferences-dialog.blp
+@@ -113,5 +113,46 @@ Adw.PreferencesDialog preferences_dialog {
+         activatable-widget: date_format_detailed_button;
+       }
+     }
++
++    /*this is where i will add my preferences */
++Adw.PreferencesGroup {
++    title: _("Sidebar Shortcuts");
++    description: _("Choose which default locations and folders appear in the sidebar.");
++
++    Adw.SwitchRow show_home_row {
++      title: _("Home");
++    }
++
++
++    Adw.SwitchRow show_recent_row {
++      title: _("Recent");
++    }
++
++    Adw.SwitchRow show_starred_row {
++      title: _("Starred");
++    }
++
++    Adw.SwitchRow show_documents_row {
++      title: _("Documents");
++    }
++
++    Adw.SwitchRow show_pictures_row {
++      title: _("Pictures");
++    }
++
++    Adw.SwitchRow show_videos_row {
++      title: _("Videos");
++    }
++
++    Adw.SwitchRow show_music_row {
++      title: _("Music");
++    }
++
++    Adw.SwitchRow show_downloads_row {
++      title: _("Downloads");
++    }
++  }
++
++/* this is the end of my modifications*/
+   }
+ }
